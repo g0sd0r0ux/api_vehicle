@@ -19,7 +19,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-@Entity
+@Entity(name = "shipments")
 @Getter
 @Setter
 @AllArgsConstructor
@@ -42,7 +42,7 @@ public class ShipmentModel {
     @ManyToOne
     @JoinColumn(name = "vehicle_id")
     @JsonIgnoreProperties(value = {"sh"})
-    private VehicleModel shipments;
+    private VehicleModel vehicle;
 
     @OneToMany(mappedBy = "shipment", fetch = FetchType.LAZY)
     @JsonIgnoreProperties("shipment")
