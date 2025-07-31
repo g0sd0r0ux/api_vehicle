@@ -1,0 +1,320 @@
+
+------------------------------------------ DOCUMENTACIÓN / DEPENDENCIAS / LIBRERÍAS
+
+
+
+
+
+-----------------------------------------------------------------------------------------------------------------------
+
+QUIERO ANIMARTE A QUE DESCUBRAS QUE PASA SI NO TE RINDES
+
+-----------------------------------------------------------------------------------------------------------------------
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+--- FLUJO DE LA API:
+
+ es que un usuario ingresa, se cargan envíos pendientes, se selecciona alguno, y se muestran los detalles y los vehículos disponibles, se selecciona se ajustan detalles, se confirma y está en transporte. Aquí, se ejecuta una acción donde un usuario se hace responsable del comienzo de un envío de transporte, luego el pedido se puede cancelar o finalizar por otro usuario, otra acción. También está el apartado, de los vehículos, un usuario puede ajustar su estado en caso que necesite reparación o notificar que se ha reparado en caso de que haya estado en reparación, también son acciones.
+
+--- PASOS
+
+-- Los modelos están listos, es necesario:
+
+1. Funcionalidades búsqueda, registro, edición y eliminación: roles, usuarios (asignarle roles), vehiculos, envios.
+2. Un usuario consulta por los envíos pendientes / seleccionar alguno / consulta por vehículos pendientes / confirma viaje (creación de acción).
+3. Un usuario consulta por envíos en recorrido / un usuario cancela/finaliza un pedido.
+4. búsqueda de envíos finalizados/cancelados para dejar reseña.
+0. Desarrollar Repositorios, Servicios, Controladores, Acceso base de datos.
+TERMINAR APPLICANT SITE.
+
+00. Consultar por J2EE, orientación consultas breves y precisas de arquitecturas que se utilizan normalmente, modelo de trabajo y hacer un CRUD de productos.
+00. Consultar por comandos básicos de git.
+
+000. Pudiste levantar una aplicación J2EE, sin tener tecnologías descargadas en tiempo record de 30 minutos, lo que te propongas tu puedes
+
+
+
+
+
+
+
+
+--- Desarrollo APIs normalmente con la arquitectura de capas (Layer Arquitecture: Controllers, Services, Repositories => DB)
+--- 
+
+ 
+--- Cosas que se pueden olvidar en relaciones de bases de datos, y configuraciones
+@Entity
+@Id
+@GeneratedValue(strategy = GenerationType.IDENTITY)
+---
+@ManyToOne
+@JoinColumn(name = "vehicle_id")
+@JsonIgnoreProperties(value = {"actions"})
+---
+@OneToMany(mappedBy="objeto_del_otro_lado", fetch = FETCH_TYPE.LAZY)
+@JsonIgnoreProperties(value = {"vehicle"})
+---
+@ManyToMany
+    @JoinTable(
+        name = "users_vehicles",
+        joinColumns = @JoinColumn(name="user_id"),
+        inverseJoinColumns = @JoinColumn(name="vehicle_id"),
+        uniqueConstraints = @UniqueConstraint(columnNames = {"user_id", "vehicle_id"})
+    )
+    @JsonIgnoreProperties(value = {"users", "hibernateLazyInitializer", "handler"})
+    private List<Vehicle> vehicles;
+---
+
+--- Lombok
+@Entity
+@Getter
+@Setter
+@AllArgsConstructor
+@NoArgsConstructor
+
+
+--- Cosas que se pueden olvidar - con dependencia de manejo en archivos JSON
+@JsonProperty(access = Access.WRITE_ONLY)
+
+
+<!-- Dependencia para documentación con Swagger -->
+		<dependency>
+			<groupId>org.springdoc</groupId>
+			<artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
+			<version>2.7.0</version>
+		</dependency>
+
+		<!-- Dependencia para manejo de JWTs -->
+		<dependency>
+			<groupId>io.jsonwebtoken</groupId>
+			<artifactId>jjwt-api</artifactId>
+			<version>0.12.6</version>
+		</dependency>
+		<dependency>
+			<groupId>io.jsonwebtoken</groupId>
+			<artifactId>jjwt-impl</artifactId>
+			<version>0.12.6</version>
+			<scope>runtime</scope>
+		</dependency>
+		<dependency>
+			<groupId>io.jsonwebtoken</groupId>
+			<artifactId>jjwt-jackson</artifactId> <!-- or jjwt-gson if Gson is preferred -->
+			<version>0.12.6</version>
+			<scope>runtime</scope>
+		</dependency>
+
+
+
+
+
+--- Cosas que se pueden olvidar - ajustes de bases de datos MySQL
+
+<!-- Dependencia MySQL -->
+		<dependency>
+			<groupId>mysql</groupId>
+			<artifactId>mysql-connector-java</artifactId>
+			<version>8.0.33</version> <!-- Puedes usar la versión más reciente -->
+		</dependency>
+
+--- MySQL
+# Datasource
+spring.datasource.url=jdbc:postgresql://localhost:5432/tu_basedatos
+spring.datasource.username=tu_usuario
+spring.datasource.password=tu_contraseña
+
+# JPA/Hibernate
+# Crea/actualiza tablas automáticamente
+spring.jpa.hibernate.ddl-auto=update
+# Opcional: muestra SQL en consola (útil para debug)
+spring.jpa.show-sql=true
+spring.jpa.properties.hibernate.dialect=org.hibernate.dialect.PostgreSQLDialect
+
+--- PostgreSQL
+# Datasource
+spring.datasource.url=jdbc:postgresql://localhost:5432/tu_basedatos
+spring.datasource.username=tu_usuario
+spring.datasource.password=tu_contraseña
+
+# JPA/Hibernate
+# Crea/actualiza tablas automáticamente
+spring.jpa.hibernate.ddl-auto=update
+# Opcional: muestra SQL en consola (útil para debug)
+spring.jpa.show-sql=true
+spring.jpa.properties.hibernate.dialect=org.hibernate.dialect.PostgreSQLDialect
+
+
+
+
+---- ddl-auto=update
+Primera ejecución:
+
+Crea las tablas y relaciones si no existen.
+
+Ejecuciones posteriores:
+
+Añade nuevas columnas o tablas si modificas tus entidades (ej: agregas un campo phone a UserModel).
+
+No elimina columnas/tablas aunque las borres de tus clases (para evitar pérdida de datos).
+
+----
+
+Problemas comunes con update
+No detecta eliminaciones:
+
+Si borras un campo en tu clase, la columna se mantiene en la BD.
+
+Cambios incompatibles:
+
+Si modificas el tipo de un campo (ej: String → Integer), puede fallar.
+
+
+
+--- JAKARTA
+
+<dependencies>
+    <!-- Jakarta EE 10 (versión mínima) -->
+    <dependency>
+        <groupId>jakarta.platform</groupId>
+        <artifactId>jakarta.jakartaee-api</artifactId>
+        <version>10.0.0</version>
+        <scope>provided</scope>
+    </dependency>
+</dependencies>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+--------------- OTROS
+
+cumplir con el SLA y ANS
+
+
+
+
+
+
+--------------- DRIVER MYSQL VS DATA JPA VS DATA JDBC:
+
+Spring Data JPA y JDBC proporcionan la lógica para interactuar con bases de datos, pero no incluyen el driver específico de cada motor de base de datos (MySQL, PostgreSQL, etc.). Por eso necesitas añadir manualmente mysql-connector-java: es el "puente" que permite a tu aplicación comunicarse con MySQL específicamente.
+
+Explicación detallada (pero concisa):
+spring-boot-starter-data-jpa:
+
+Contiene las interfaces de JPA (Hibernate) para mapear objetos a tablas.
+
+No incluye drivers de ningún motor de base de datos.
+
+spring-boot-starter-data-jdbc:
+
+Ofrece herramientas para consultas SQL directas.
+
+Tampoco incluye drivers.
+
+mysql-connector-java:
+
+Es el driver específico para MySQL.
+
+Sin él, tu app no sabe cómo hablar con MySQL, aunque sepa usar JPA/JDBC.
+
+Analogía:
+Imagina que JPA/JDBC son un lenguaje universal para hablar con bases de datos.
+
+El driver de MySQL es el traductor específico para ese lenguaje en MySQL.
+
+Sin el traductor, no hay comunicación, aunque entiendas el lenguaje.
+
+¿Por qué Spring no lo incluye por defecto?
+Flexibilidad: Spring Boot soporta múltiples bases de datos (PostgreSQL, Oracle, etc.), y no asume cuál usarás.
+
+Tamaño: Evita incluir librerías innecesarias si usas otra BD.
+
+
+
+
+
+
+
+
+
+
+
+
+
+Cómo empezar un proyecto MVC con J2EE
+1. Tecnologías clave (MVC):
+Modelo: JPA (Hibernate) → Base de datos.
+
+Vista: JSF/JSP → Páginas web (o usa Thymeleaf si prefieres Spring).
+
+Controlador: Servlets o EJBs → Lógica de negocio.
+
+2. Pasos rápidos:
+Instala un servidor compatible:
+
+WildFly, Payara, o TomEE.
+
+Crea un proyecto Maven/Gradle y añade dependencias:
+
+xml
+<!-- Ejemplo para Jakarta EE 10 -->
+<dependency>
+    <groupId>jakarta.platform</groupId>
+    <artifactId>jakarta.jakartaee-api</artifactId>
+    <version>10.0.0</version>
+    <scope>provided</scope>
+</dependency>
+Estructura básica MVC:
+
+java
+// Modelo (JPA)
+@Entity
+public class Producto { /* ... */ }
+
+// Controlador (Servlet)
+@WebServlet("/productos")
+public class ProductoServlet extends HttpServlet { 
+    protected void doGet(...) { /* Lógica */ }
+}
+
+// Vista (JSP en /webapp/productos.jsp)
+<html><body>${listaProductos}</body></html>
+Diferencia clave vs Spring Boot:
+J2EE es un estándar (requiere servidor externo).
+
+
+
